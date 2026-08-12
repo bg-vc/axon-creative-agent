@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "axon-creative-agent"
 version = "0.1.0"
-description = "Codex-directed local creative workflows for ComfyUI"
+description = "Codex-directed creative workflows for cloud ComfyUI GPUs"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "Apache-2.0"}

@@ -6,13 +6,24 @@ from unittest.mock import Mock
 
 from axon_creative.errors import ConfigurationError
 from axon_creative.manifest import discover_manifests
-from axon_creative.runner import ensure_safe_server, parse_inputs, prepare_workflow
+from axon_creative.runner import (
+    ensure_safe_server,
+    parse_inputs,
+    prepare_workflow,
+    validate_run_id,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class RunnerTests(unittest.TestCase):
+    def test_run_id_rejects_path_or_shell_characters(self):
+        self.assertEqual(validate_run_id("20260812T120000Z-abcdef12"), "20260812T120000Z-abcdef12")
+        for value in ("../escape", "short", "run;command", "run/child"):
+            with self.assertRaises(ConfigurationError):
+                validate_run_id(value)
+
     def test_loopback_allowed_and_remote_requires_flag(self):
         ensure_safe_server("http://127.0.0.1:8188", False)
         ensure_safe_server("http://localhost:8188", False)

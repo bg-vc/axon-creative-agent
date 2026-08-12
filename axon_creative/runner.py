@@ -4,7 +4,7 @@ import copy
 import hashlib
 import ipaddress
 import json
-import os
+import re
 import shutil
 import socket
 import subprocess
@@ -18,6 +18,21 @@ from urllib.parse import urlparse
 from .client import ComfyUIClient
 from .errors import ComfyUIError, ConfigurationError, WorkflowError
 from .manifest import WorkflowManifest, load_api_workflow
+
+
+RUN_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{7,63}$")
+
+
+def create_run_id() -> str:
+    return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
+
+
+def validate_run_id(value: str) -> str:
+    if not RUN_ID_PATTERN.fullmatch(value):
+        raise ConfigurationError(
+            "Run id must be 8-64 letters, numbers, underscores, or hyphens"
+        )
+    return value
 
 
 def ensure_safe_server(url: str, allow_remote: bool) -> None:
@@ -191,8 +206,9 @@ def execute(
     comfy_input_dir: Path | None,
     poll_interval: float,
     timeout: float,
+    run_id: str | None = None,
 ) -> dict[str, Any]:
-    run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
+    run_id = validate_run_id(run_id) if run_id else create_run_id()
     run_dir = root / "runs" / run_id
     run_dir.mkdir(parents=True, exist_ok=False)
     started = time.monotonic()

@@ -1,7 +1,7 @@
 # Axon Creative Agent
 
-This repository is a small, local-first Codex workspace for directing creative
-workflows through ComfyUI. Keep it readable and executable.
+This repository lets Codex on the user's computer direct creative workflows on
+a cloud ComfyUI GPU. Keep it readable and executable.
 
 ## Contribution rules
 
@@ -19,6 +19,10 @@ workflows through ComfyUI. Keep it readable and executable.
 - Treat model-weight licenses separately from this repository's Apache-2.0
   source license.
 - Never publish performance claims without a reproducible benchmark artifact.
+- Treat `workflow.ui.json` as the first-run surface and `workflow.api.json` as
+  the automation surface; keep both aligned with the Manifest.
+- Keep SSH host-key verification enabled. Store aliases and remote paths in the
+  ignored profile; never store credentials there.
 
 ## Validation
 

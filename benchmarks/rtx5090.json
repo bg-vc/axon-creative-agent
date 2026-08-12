@@ -2,6 +2,8 @@
   "schemaVersion": 1,
   "measuredRuns": 3,
   "environment": {
+    "cloudProvider": "FILL_AFTER_MEASUREMENT",
+    "instanceType": "FILL_AFTER_MEASUREMENT",
     "gpu": "NVIDIA GeForce RTX 5090",
     "operatingSystem": "FILL_AFTER_MEASUREMENT",
     "driver": "FILL_AFTER_MEASUREMENT",

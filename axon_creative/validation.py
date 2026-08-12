@@ -6,13 +6,27 @@ from pathlib import Path
 from typing import Any
 
 from .manifest import discover_manifests, load_api_workflow
+from .inspection import required_for
 
 
 BANNED = ("蜘蛛侠", "spider-man", "exec-", "/Users/", "C:\\Users\\")
+MODEL_LOADERS = {
+    "UNETLoader": ("diffusion_models", "unet_name"),
+    "CLIPLoader": ("text_encoders", "clip_name"),
+    "VAELoader": ("vae", "vae_name"),
+    "MiniMaxH3TurboLoRA": ("loras", "lora_name"),
+}
 
 
 def _headings(path: Path) -> list[str]:
     return [re.sub(r"^#+\s+", "", line).strip() for line in path.read_text(encoding="utf-8").splitlines() if re.match(r"^#{1,3}\s+", line)]
+
+
+def _ui_nodes(workflow: dict[str, Any]) -> list[dict[str, Any]]:
+    nodes = list(workflow.get("nodes", []))
+    for subgraph in workflow.get("definitions", {}).get("subgraphs", []):
+        nodes.extend(subgraph.get("nodes", []))
+    return nodes
 
 
 def validate_repository(root: Path) -> list[str]:
@@ -35,6 +49,42 @@ def validate_repository(root: Path) -> list[str]:
                     errors.append(str(exc))
             try:
                 workflow = load_api_workflow(manifest, variant)
+                ui_path = manifest.workflow_path(variant, "ui")
+                ui_workflow = json.loads(ui_path.read_text(encoding="utf-8"))
+                if "anomalous_hashes" in ui_workflow.get("extra", {}):
+                    errors.append(f"{manifest.id}/{variant}: UI contains stale model hashes")
+                expected_models = {
+                    (item["folder"], item["name"])
+                    for item in manifest.data.get("requirements", {}).get("models", [])
+                    if required_for(item, variant)
+                }
+                api_models = {
+                    (folder, node["inputs"][input_name])
+                    for node in workflow.values()
+                    if node["class_type"] in MODEL_LOADERS
+                    for folder, input_name in [MODEL_LOADERS[node["class_type"]]]
+                }
+                ui_models = {
+                    (folder, node.get("widgets_values", [None])[0])
+                    for node in _ui_nodes(ui_workflow)
+                    if node.get("type") in MODEL_LOADERS and node.get("widgets_values")
+                    for folder, _ in [MODEL_LOADERS[node["type"]]]
+                }
+                if api_models != expected_models:
+                    errors.append(f"{manifest.id}/{variant}: API models differ from manifest")
+                if ui_models != expected_models:
+                    errors.append(f"{manifest.id}/{variant}: UI models differ from manifest")
+                notes = "\n".join(
+                    str(value)
+                    for node in _ui_nodes(ui_workflow)
+                    if node.get("title") == "Note: Model Links"
+                    for value in node.get("widgets_values", [])
+                )
+                for _, model_name in expected_models:
+                    if model_name not in notes:
+                        errors.append(
+                            f"{manifest.id}/{variant}: UI model note omits {model_name}"
+                        )
                 for mapping in list(manifest.data.get("parameters", {}).values()) + list(manifest.data.get("assets", {}).values()):
                     node = workflow.get(str(mapping["nodeId"]))
                     if not node or mapping["input"] not in node["inputs"]:

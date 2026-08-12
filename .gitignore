@@ -16,6 +16,7 @@ build/
 # Local configuration and secrets
 .env*
 !.env.example
+.axon-creative/
 
 # ComfyUI and generated state
 ComfyUI/
