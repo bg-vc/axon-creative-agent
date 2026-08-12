@@ -1,0 +1,216 @@
+{
+  "1": {
+    "inputs": {
+      "unet_name": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Load H3 model"
+    }
+  },
+  "2": {
+    "inputs": {
+      "clip_name": "qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
+      "type": "minimax",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "Load H3 text encoder"
+    }
+  },
+  "3": {
+    "inputs": {
+      "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load video VAE"
+    }
+  },
+  "4": {
+    "inputs": {
+      "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load audio VAE"
+    }
+  },
+  "5": {
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "lora_name": "minimax_h3_turbo_v4_step600_ema.safetensors",
+      "strength": 1.0,
+      "low_vram": false
+    },
+    "class_type": "MiniMaxH3TurboLoRA",
+    "_meta": {
+      "title": "H3 Turbo LoRA"
+    }
+  },
+  "9": {
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "prompt": "Create a 10-second, 16:9 cinematic technology short called “Axon Signal.” No\nexisting characters, brands, logos, or copyrighted designs.\n\nVisual anchor: an original gender-neutral field engineer in a matte graphite\nutility suit with one thin amber signal line across the shoulder. Their face,\nclothing, proportions, and amber accent remain consistent.\n\n[0–3s] Extreme close-up of a small black signal prism waking in the engineer's\ngloved hand. A single amber pulse travels through etched channels. Slow camera\npullback reveals a quiet brutalist observatory at blue hour.\n\n[3–7s] The engineer walks toward a circular antenna. The camera tracks at waist\nheight. The amber pulse leaves the prism, travels along the floor, and climbs\nthe antenna as one physically coherent line. Wind moves the coat fabric.\n\n[7–10s] Wide shot: the antenna emits one restrained amber ring across a dark\ncloud layer. The engineer remains clearly visible in the foreground. End on a\nstable composition, not a cut to black.\n\nAudio: native stereo. Low electrical hum, precise relay clicks, wind across\nconcrete, one deep analog pulse at 7 seconds, then a clean unresolved tone. No\ndialogue and no recognizable music. No text, captions, logos, watermarks,\nextra limbs, random camera spins, neon cyberpunk city, or explosive particles.",
+      "width": 1344,
+      "height": 768,
+      "length": 243
+    },
+    "class_type": "MiniMaxH3ImageToVideo",
+    "_meta": {
+      "title": "Axon Signal text to video"
+    }
+  },
+  "10": {
+    "inputs": {
+      "noise_seed": 20260812
+    },
+    "class_type": "RandomNoise",
+    "_meta": {
+      "title": "Seed"
+    }
+  },
+  "12": {
+    "inputs": {},
+    "class_type": "MiniMaxH3TurboSampler",
+    "_meta": {
+      "title": "H3 Turbo sampler"
+    }
+  },
+  "13": {
+    "inputs": {
+      "model": [
+        "5",
+        0
+      ],
+      "scheduler": "simple",
+      "steps": 8,
+      "denoise": 1.0
+    },
+    "class_type": "BasicScheduler",
+    "_meta": {
+      "title": "Schedule"
+    }
+  },
+  "14": {
+    "inputs": {
+      "model": [
+        "5",
+        0
+      ],
+      "conditioning": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "BasicGuider",
+    "_meta": {
+      "title": "Guide"
+    }
+  },
+  "15": {
+    "inputs": {
+      "noise": [
+        "10",
+        0
+      ],
+      "guider": [
+        "14",
+        0
+      ],
+      "sampler": [
+        "12",
+        0
+      ],
+      "sigmas": [
+        "13",
+        0
+      ],
+      "latent_image": [
+        "9",
+        1
+      ]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "Sample"
+    }
+  },
+  "16": {
+    "inputs": {
+      "samples": [
+        "15",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "Decode video"
+    }
+  },
+  "17": {
+    "inputs": {
+      "samples": [
+        "15",
+        0
+      ],
+      "vae": [
+        "4",
+        0
+      ]
+    },
+    "class_type": "VAEDecodeAudio",
+    "_meta": {
+      "title": "Decode audio"
+    }
+  },
+  "18": {
+    "inputs": {
+      "images": [
+        "16",
+        0
+      ],
+      "audio": [
+        "17",
+        0
+      ],
+      "fps": 24.0,
+      "bit_depth": 8
+    },
+    "class_type": "CreateVideo",
+    "_meta": {
+      "title": "Mux synchronized video and audio"
+    }
+  },
+  "19": {
+    "inputs": {
+      "video": [
+        "18",
+        0
+      ],
+      "filename_prefix": "video/Axon_Creative",
+      "format": "auto",
+      "codec": "auto"
+    },
+    "class_type": "SaveVideo",
+    "_meta": {
+      "title": "Save video"
+    }
+  }
+}

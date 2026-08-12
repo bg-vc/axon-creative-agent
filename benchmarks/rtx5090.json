@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "measuredRuns": 3,
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 5090",
+    "operatingSystem": "FILL_AFTER_MEASUREMENT",
+    "driver": "FILL_AFTER_MEASUREMENT",
+    "cuda": "FILL_AFTER_MEASUREMENT",
+    "pytorch": "FILL_AFTER_MEASUREMENT",
+    "comfyuiCommit": "bd34f338ac505ea79e43968753968a464060e609",
+    "turboCommit": "55fee864dd7b2976b1c4ce3c3d5f7968f181409f",
+    "solAttnCommit": "842c4eaa7d91dbaef3fee3ccdbf36a39521e82fc",
+    "notes": "Replace every FILL_AFTER_MEASUREMENT value before publishing results."
+  },
+  "cases": [
+    {
+      "workflowId": "minimax-h3-t2v",
+      "promptFile": "../prompts/axon-signal-t2v.txt",
+      "seed": 20260812,
+      "variants": ["official", "turbo", "accelerated"],
+      "inputs": {}
+    },
+    {
+      "workflowId": "minimax-h3-i2v",
+      "promptFile": "../prompts/axon-signal-i2v.txt",
+      "seed": 20260812,
+      "variants": ["official", "turbo", "accelerated"],
+      "inputs": {"first-frame": "../docs/assets/axon-signal-reference.png"}
+    },
+    {
+      "workflowId": "minimax-h3-r2v",
+      "promptFile": "../prompts/axon-signal-r2v.txt",
+      "seed": 20260812,
+      "variants": ["official", "turbo", "accelerated"],
+      "inputs": {"picture": "../docs/assets/axon-signal-reference.png"}
+    }
+  ]
+}

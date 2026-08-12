@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "id": "minimax-h3-i2v",
+  "title": "MiniMax H3 Image to Video",
+  "mediaType": "video",
+  "engine": "comfyui",
+  "defaultPrompt": "../../../prompts/axon-signal-i2v.txt",
+  "variants": {
+    "official": {
+      "ui": "official/workflow.ui.json",
+      "api": "official/workflow.api.json"
+    },
+    "turbo": {
+      "ui": "turbo/workflow.ui.json",
+      "api": "turbo/workflow.api.json"
+    },
+    "accelerated": {
+      "ui": "accelerated/workflow.ui.json",
+      "api": "accelerated/workflow.api.json"
+    }
+  },
+  "parameters": {
+    "prompt": {
+      "nodeId": "9",
+      "input": "prompt"
+    },
+    "seed": {
+      "nodeId": "10",
+      "input": "noise_seed"
+    }
+  },
+  "assets": {
+    "first-frame": {
+      "kind": "image",
+      "required": true,
+      "nodeId": "20",
+      "input": "image"
+    }
+  },
+  "requirements": {
+    "comfyui": {
+      "minimumVersion": "0.30.0"
+    },
+    "models": [
+      {
+        "folder": "diffusion_models",
+        "name": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+        "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+        "required": true
+      },
+      {
+        "folder": "text_encoders",
+        "name": "qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
+        "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/text_encoders/qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
+        "required": true
+      },
+      {
+        "folder": "vae",
+        "name": "minimax_h3_video_vae_fp16.safetensors",
+        "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_fp16.safetensors",
+        "required": true
+      },
+      {
+        "folder": "vae",
+        "name": "minimax_h3_audio_vae_fp32.safetensors",
+        "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors",
+        "required": true
+      },
+      {
+        "folder": "loras",
+        "name": "minimax_h3_turbo_v4_step600_ema.safetensors",
+        "url": "https://huggingface.co/larryvrh/MiniMax-H3-Turbo-Lora/resolve/main/minimax_h3_turbo_v4_step600_ema.safetensors",
+        "requiredFor": [
+          "turbo",
+          "accelerated"
+        ]
+      }
+    ],
+    "nodes": [
+      {
+        "classType": "MiniMaxH3ImageToVideo",
+        "source": "ComfyUI",
+        "url": "https://github.com/Comfy-Org/ComfyUI",
+        "required": true
+      },
+      {
+        "classType": "MiniMaxH3TurboLoRA",
+        "source": "ComfyUI-MiniMax-H3-Turbo",
+        "url": "https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo",
+        "requiredFor": [
+          "turbo",
+          "accelerated"
+        ],
+        "required": false
+      },
+      {
+        "classType": "SolAttnPatch",
+        "source": "ComfyUI-SolAttn_triton",
+        "url": "https://github.com/kijai/ComfyUI-SolAttn_triton",
+        "requiredFor": [
+          "accelerated"
+        ],
+        "required": false
+      }
+    ]
+  },
+  "outputs": [
+    {
+      "nodeId": "19",
+      "kind": "video",
+      "audio": "stereo"
+    }
+  ],
+  "limits": {
+    "fps": 24,
+    "width": 1344,
+    "height": 768,
+    "trainedFrameRange": [
+      124,
+      362
+    ]
+  }
+}

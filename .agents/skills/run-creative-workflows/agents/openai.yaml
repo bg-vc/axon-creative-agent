@@ -1,0 +1,4 @@
+interface:
+  display_name: "Run Creative Workflows"
+  short_description: "Direct local ComfyUI video generation with Codex"
+  default_prompt: "Use $run-creative-workflows to turn my brief and references into a local MiniMax H3 video."

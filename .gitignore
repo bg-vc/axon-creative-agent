@@ -1,0 +1,45 @@
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# Local configuration and secrets
+.env*
+!.env.example
+
+# ComfyUI and generated state
+ComfyUI/
+models/
+input/
+output/
+runs/
+logs/
+tmp/
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.gguf
+*.onnx
+
+# Generated media stays out of Git. Curated PNG/WebP posters may live in docs/assets.
+*.mov
+*.mp4
+*.webm
+*.avi
+*.mkv
+*.wav
+*.mp3
+*.flac
+*.aac
+*.gif

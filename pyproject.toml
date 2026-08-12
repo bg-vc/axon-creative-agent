@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "axon-creative-agent"
+version = "0.1.0"
+description = "Codex-directed local creative workflows for ComfyUI"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+authors = [{name = "bg-vc"}]
+keywords = ["codex", "comfyui", "minimax-h3", "video-generation", "agent-skills"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = []
+
+[project.scripts]
+axon-creative = "axon_creative.cli:main"
+
+[tool.setuptools]
+packages = ["axon_creative"]

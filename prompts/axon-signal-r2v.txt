@@ -1,0 +1,23 @@
+Create a 10-second, 16:9 Axon Signal short from the supplied references.
+
+Use <Picture 1> only for the original engineer's identity, graphite utility
+suit, amber shoulder line, and signal prism. If <Video 1> is present, use it
+only for body motion and camera timing, not appearance. If <Audio 1> is present,
+use it only for voice texture and cadence; do not copy words.
+
+[0–3s] Medium close-up in a dark brutalist observatory. The engineer studies the
+black prism while a restrained amber pulse moves through it. Slow handheld
+breathing, stable face and hands.
+
+[3–7s] Match the movement rhythm from <Video 1> when available: the engineer
+turns and walks toward a circular antenna. A single amber signal follows along
+the floor. Maintain spatial continuity and the reference identity.
+
+[7–10s] The engineer says, in a newly generated line, “Signal locked.” Match the
+cadence of <Audio 1> only when present. The antenna sends one amber ring into the
+cloud layer. End on the engineer in clear three-quarter profile.
+
+Audio: native stereo wind, electrical hum, relay clicks, original restrained
+voice, and one low analog pulse. No copyrighted characters, brands, copied
+dialogue, extra people, text overlays, logos, watermarks, identity drift,
+wardrobe changes, random camera spins, or particle explosions.
