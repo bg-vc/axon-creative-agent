@@ -74,6 +74,21 @@ def validate_repository(root: Path) -> list[str]:
                     errors.append(f"{manifest.id}/{variant}: API models differ from manifest")
                 if ui_models != expected_models:
                     errors.append(f"{manifest.id}/{variant}: UI models differ from manifest")
+                expected_images = sum(
+                    1
+                    for asset in manifest.data.get("assets", {}).values()
+                    if asset.get("kind") == "image" and asset.get("required")
+                )
+                ui_images = [
+                    node
+                    for node in _ui_nodes(ui_workflow)
+                    if node.get("type") == "LoadImage" and node.get("mode", 0) != 4
+                ]
+                if len(ui_images) != expected_images:
+                    errors.append(
+                        f"{manifest.id}/{variant}: UI has {len(ui_images)} active image inputs; "
+                        f"manifest requires {expected_images}"
+                    )
                 notes = "\n".join(
                     str(value)
                     for node in _ui_nodes(ui_workflow)

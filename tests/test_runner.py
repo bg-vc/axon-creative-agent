@@ -72,6 +72,38 @@ class RunnerTests(unittest.TestCase):
                 workflow["20"]["inputs"]["image"], "axon-creative/run/frame.png"
             )
 
+    def test_video_can_follow_image_in_existing_comfy_input_directory(self):
+        manifest = discover_manifests(ROOT)["minimax-h3-r2v"]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            image = root / "character.png"
+            video = root / "motion.mp4"
+            image.write_bytes(b"png")
+            video.write_bytes(b"mp4")
+            input_root = root / "comfy-input"
+            run_dir = input_root / "axon-creative/run12345"
+            run_dir.mkdir(parents=True)
+            client = Mock()
+            client.upload_image.return_value = {
+                "name": image.name,
+                "subfolder": "axon-creative/run12345",
+            }
+            workflow = prepare_workflow(
+                manifest,
+                "official",
+                "prompt",
+                7,
+                {"picture": image, "video": video},
+                client,
+                "run12345",
+                input_root,
+            )
+            self.assertTrue((run_dir / video.name).is_file())
+            self.assertEqual(
+                workflow["21"]["inputs"]["video"],
+                "axon-creative/run12345/motion.mp4",
+            )
+
     def test_optional_reference_nodes_are_pruned(self):
         manifest = discover_manifests(ROOT)["minimax-h3-r2v"]
         with tempfile.TemporaryDirectory() as directory:

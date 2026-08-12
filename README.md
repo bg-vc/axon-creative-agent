@@ -30,6 +30,14 @@ repeatable automation after that workflow works in ComfyUI.
 
 ## First run: drag the workflow into ComfyUI
 
+Clone the repository on your computer and install its CLI once:
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+```
+
 1. Ask Codex to choose T2V, I2V, or R2V. Accelerated is the default RTX 5090
    demonstration; it requires H3 Turbo and Sol-Attn.
 2. Print the exact workflow and dependencies:
@@ -46,6 +54,9 @@ ssh -N -L 8188:127.0.0.1:8188 axon-5090
 ```
 
 Open `http://127.0.0.1:8188` locally while the tunnel is running.
+
+For the bundled I2V/R2V example, copy `docs/assets/axon-signal-reference.png`
+into `ComfyUI/input/` first, or choose your own image in the `LoadImage` node.
 
 4. Install missing custom nodes reported by ComfyUI Manager. Update ComfyUI when
    a core node is missing. Install every model printed by `inspect` in the shown
@@ -77,13 +88,15 @@ axon-creative cloud init --profile cloud5090 --ssh-host axon-5090 \
   --remote-repo /workspace/axon-creative-agent \
   --comfy-input-dir /workspace/ComfyUI/input
 
-axon-creative cloud doctor --profile cloud5090 --variant accelerated
+axon-creative cloud doctor --profile cloud5090 \
+  --workflow-id minimax-h3-t2v --variant accelerated
 ```
 
 The ignored `.axon-creative/profiles.toml` stores only the SSH alias and remote
 paths. Passwords and keys remain in the operating system SSH configuration.
 `cloud doctor` checks SSH, repository versions, cloud paths, ComfyUI, nodes, and
-models. Fix every reported item; it never installs or silently changes models.
+models for the selected workflow. Fix every reported item; it never installs or
+silently changes models.
 
 ## Generate from local Codex
 
@@ -105,8 +118,9 @@ axon-creative cloud run --profile cloud5090 \
 
 The command uploads only this run's inputs, executes the same API runner on the
 cloud host, and downloads `runs/<run-id>/` with the video and manifest. Temporary
-uploads are removed only after a successful download. Failures also produce a
-local manifest with an actionable error.
+uploads are removed after a successful download; successful runs also remove
+their copied ComfyUI inputs. Failures produce a local manifest with an actionable
+error.
 
 ## Workflows and variants
 

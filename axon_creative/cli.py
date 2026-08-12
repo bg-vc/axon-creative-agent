@@ -52,6 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
     inspect.add_argument("--variant", choices=("official", "turbo", "accelerated"), default="accelerated")
     doctor = sub.add_parser("doctor", help="check ComfyUI, nodes, and models")
     doctor.add_argument("--variant", choices=("official", "turbo", "accelerated"), default="accelerated")
+    doctor.add_argument("--workflow-id", help="check one workflow instead of every workflow")
     add_server_arguments(doctor)
     run = sub.add_parser("run", help="submit one workflow to ComfyUI")
     run.add_argument("workflow_id")
@@ -80,6 +81,7 @@ def build_parser() -> argparse.ArgumentParser:
     cloud_check = cloud_sub.add_parser("doctor", help="check SSH, versions, and cloud ComfyUI")
     cloud_check.add_argument("--profile", required=True)
     cloud_check.add_argument("--variant", choices=("official", "turbo", "accelerated"), default="accelerated")
+    cloud_check.add_argument("--workflow-id", default="minimax-h3-t2v")
     cloud_execute = cloud_sub.add_parser("run", help="upload inputs, generate, and download results")
     cloud_execute.add_argument("--profile", required=True)
     cloud_execute.add_argument("workflow_id")
@@ -139,7 +141,14 @@ def main(argv: list[str] | None = None) -> int:
                     ),
                 )
             elif args.cloud_command == "doctor":
-                result = cloud_doctor(root, get_profile(root, args.profile), args.variant)
+                if args.workflow_id not in manifests:
+                    raise ConfigurationError(f"Unknown workflow: {args.workflow_id}")
+                result = cloud_doctor(
+                    root,
+                    get_profile(root, args.profile),
+                    args.variant,
+                    args.workflow_id,
+                )
             else:
                 if args.workflow_id not in manifests:
                     raise ConfigurationError(f"Unknown workflow: {args.workflow_id}")
@@ -162,7 +171,12 @@ def main(argv: list[str] | None = None) -> int:
         ensure_safe_server(args.server, args.allow_remote)
         client = ComfyUIClient(args.server)
         if args.command == "doctor":
-            report = run_doctor(client, manifests, args.variant)
+            selected = manifests
+            if args.workflow_id:
+                if args.workflow_id not in manifests:
+                    raise ConfigurationError(f"Unknown workflow: {args.workflow_id}")
+                selected = {args.workflow_id: manifests[args.workflow_id]}
+            report = run_doctor(client, selected, args.variant)
             print(json.dumps(report, indent=2, ensure_ascii=False))
             return 0 if report["ok"] else 1
         if args.command == "run":

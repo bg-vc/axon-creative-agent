@@ -29,6 +29,14 @@ UI JSON 用于第一次跑通和理解工作流；确认它能在 ComfyUI 运行
 
 ## 第一次运行：把工作流拖进 ComfyUI
 
+先在用户电脑克隆仓库，并一次性安装 CLI：
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+```
+
 1. 让 Codex 根据需求选择 T2V、I2V 或 R2V。默认推荐展示 RTX 5090 的
    `accelerated`，它需要 H3 Turbo 和 Sol-Attn。
 2. 输出准确的工作流和依赖：
@@ -44,6 +52,9 @@ ssh -N -L 8188:127.0.0.1:8188 axon-5090
 ```
 
 保持隧道运行，在本地浏览器打开 `http://127.0.0.1:8188`。
+
+使用仓库自带的 I2V/R2V 样例时，先把 `docs/assets/axon-signal-reference.png`
+复制到 `ComfyUI/input/`；也可以在 `LoadImage` 节点中选择自己的图片。
 
 4. 根据 ComfyUI Manager 提示安装缺失自定义节点；缺少核心节点时先更新 ComfyUI。
    把 `inspect` 列出的每个模型放入对应 `ComfyUI/models/<目录>`。
@@ -72,12 +83,13 @@ axon-creative cloud init --profile cloud5090 --ssh-host axon-5090 \
   --remote-repo /workspace/axon-creative-agent \
   --comfy-input-dir /workspace/ComfyUI/input
 
-axon-creative cloud doctor --profile cloud5090 --variant accelerated
+axon-creative cloud doctor --profile cloud5090 \
+  --workflow-id minimax-h3-t2v --variant accelerated
 ```
 
 被 Git 忽略的 `.axon-creative/profiles.toml` 只保存 SSH alias 和云端路径；密码与私钥
-仍由系统 SSH 管理。`cloud doctor` 检查 SSH、仓库版本、云端目录、ComfyUI、节点和
-模型。它只报告问题，不自动安装，也不会静默切换模型。
+仍由系统 SSH 管理。`cloud doctor` 检查所选工作流需要的 SSH、仓库版本、云端目录、
+ComfyUI、节点和模型。它只报告问题，不自动安装，也不会静默切换模型。
 
 ## 由本地 Codex 发起生成
 
@@ -98,8 +110,8 @@ axon-creative cloud run --profile cloud5090 \
 ```
 
 命令只上传本次运行的素材，在云端调用同一个 API 执行器，再把包含视频和 Manifest 的
-`runs/<run-id>/` 下载回本地。只有下载成功才清理临时上传；失败也会在本地生成带有
-明确原因的运行清单。
+`runs/<run-id>/` 下载回本地。下载成功后清理临时上传；运行成功后同时清理复制到
+ComfyUI 的输入。失败也会在本地生成带有明确原因的运行清单。
 
 ## 工作流与变体
 

@@ -16,14 +16,16 @@ generation before batches or benchmarks.
    `accelerated` for the RTX 5090 demonstration; explain its Turbo and Sol-Attn
    requirements. Never silently switch variants.
 3. Run `axon-creative inspect <workflow-id> --variant accelerated`. Tell the user
-   the exact `workflow.ui.json` to drag into cloud ComfyUI.
+   the exact `workflow.ui.json` to drag into cloud ComfyUI. For I2V/R2V, have
+   them copy the bundled reference into `ComfyUI/input/` or select their own
+   image in `LoadImage`.
 4. Help resolve the UI once: use ComfyUI Manager for missing custom nodes,
    update ComfyUI for missing core nodes, and use the inspect/Manifest model
    list when the UI does not provide a download prompt. Restart and reload.
 5. Have the user complete one 5–10 second UI test. Do not automate a workflow
    that has not worked in the UI.
-6. Run `axon-creative cloud doctor --profile <name> --variant <variant>`. Stop on
-   SSH, version, path, model, node, or server errors.
+6. Run `axon-creative cloud doctor --profile <name> --workflow-id <workflow-id> --variant <variant>`.
+   Stop on SSH, version, path, model, node, or server errors.
 7. Present a short summary, then run `axon-creative cloud run`. One explicitly
    requested generation is authorized; ask before batches, benchmarks, longer
    duration, or higher resolution.

@@ -5,6 +5,10 @@ ComfyUI, install what ComfyUI Manager reports, and run a 5–10 second test.
 `axon-creative inspect <workflow-id> --variant accelerated` prints the exact
 path and the Manifest dependency list.
 
+I2V and R2V expect `axon-signal-reference.png` on first load. Copy the bundled
+`docs/assets/axon-signal-reference.png` to `ComfyUI/input/`, or select your own
+image in the `LoadImage` node.
+
 | Mode | Purpose | Required input | Official | Turbo | Accelerated |
 | --- | --- | --- | --- | --- | --- |
 | T2V | Generate from text | prompt | [`workflow.ui.json`](../workflows/minimax-h3/t2v/official/workflow.ui.json) | [`workflow.ui.json`](../workflows/minimax-h3/t2v/turbo/workflow.ui.json) | [`workflow.ui.json`](../workflows/minimax-h3/t2v/accelerated/workflow.ui.json) |

@@ -190,7 +190,12 @@ def initialize_profile(root: Path, profile: CloudProfile) -> dict[str, Any]:
     return {"ok": True, "profile": profile.name, "config": str(path)}
 
 
-def cloud_doctor(root: Path, profile: CloudProfile, variant: str) -> dict[str, Any]:
+def cloud_doctor(
+    root: Path,
+    profile: CloudProfile,
+    variant: str,
+    workflow_id: str,
+) -> dict[str, Any]:
     transport = SSHTransport(profile.ssh_host)
     remote_python = str(PurePosixPath(profile.remote_repo) / ".venv/bin/python")
     try:
@@ -228,6 +233,8 @@ def cloud_doctor(root: Path, profile: CloudProfile, variant: str) -> dict[str, A
             "doctor",
             "--variant",
             variant,
+            "--workflow-id",
+            workflow_id,
         ],
         check=False,
     )
@@ -238,6 +245,7 @@ def cloud_doctor(root: Path, profile: CloudProfile, variant: str) -> dict[str, A
     return {
         "ok": local_sha == remote_sha and bool(doctor_report.get("ok")),
         "profile": profile.name,
+        "workflowId": workflow_id,
         "version": {"ok": local_sha == remote_sha, "local": local_sha, "remote": remote_sha},
         "comfyui": doctor_report,
     }
@@ -307,7 +315,7 @@ def _execute_cloud_run(
         except ConfigurationError as exc:
             download_error = exc
         else:
-            transport.ssh(["rm", "-rf", str(remote_upload)])
+            transport.ssh(["rm", "-rf", str(remote_upload)], check=False)
 
     if download_error:
         raise download_error
@@ -339,6 +347,8 @@ def _execute_cloud_run(
     record = json.loads(manifest_path.read_text(encoding="utf-8"))
     if result.returncode or record.get("status") != "completed":
         raise ConfigurationError(f"Cloud run failed; inspect runs/{run_id}/manifest.json")
+    remote_comfy_input = PurePosixPath(profile.comfyui_input_dir) / "axon-creative" / run_id
+    transport.ssh(["rm", "-rf", str(remote_comfy_input)], check=False)
     return record
 
 

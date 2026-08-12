@@ -1003,84 +1003,6 @@
       ]
     },
     {
-      "id": 170,
-      "type": "LoadImage",
-      "pos": [
-        -910,
-        6630
-      ],
-      "size": [
-        270,
-        320
-      ],
-      "flags": {},
-      "order": 11,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            322
-          ]
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.31.0",
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "axon-signal-reference.png",
-        "image"
-      ]
-    },
-    {
-      "id": 171,
-      "type": "LoadImage",
-      "pos": [
-        -550,
-        6630
-      ],
-      "size": [
-        270,
-        320
-      ],
-      "flags": {},
-      "order": 12,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            323
-          ]
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.31.0",
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "axon-signal-reference.png",
-        "image"
-      ]
-    },
-    {
       "id": 136,
       "type": "MiniMaxH3ReferenceToVideo",
       "pos": [
@@ -1122,35 +1044,35 @@
           "name": "ref_images.ref_image_1",
           "shape": 7,
           "type": "IMAGE",
-          "link": 322
+          "link": null
         },
         {
           "label": "ref_image_2",
           "name": "ref_images.ref_image_2",
           "shape": 7,
           "type": "IMAGE",
-          "link": 323
+          "link": null
         },
         {
           "label": "ref_image_3",
           "name": "ref_images.ref_image_3",
           "shape": 7,
           "type": "IMAGE",
-          "link": 324
+          "link": null
         },
         {
           "label": "ref_image_4",
           "name": "ref_images.ref_image_4",
           "shape": 7,
           "type": "IMAGE",
-          "link": 325
+          "link": null
         },
         {
           "label": "ref_image_5",
           "name": "ref_images.ref_image_5",
           "shape": 7,
           "type": "IMAGE",
-          "link": 326
+          "link": null
         },
         {
           "label": "ref_image_6",
@@ -1254,123 +1176,6 @@
         768,
         124,
         "match"
-      ]
-    },
-    {
-      "id": 174,
-      "type": "LoadImage",
-      "pos": [
-        -550,
-        7050
-      ],
-      "size": [
-        270,
-        320
-      ],
-      "flags": {},
-      "order": 13,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            326
-          ]
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.31.0",
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "axon-signal-reference.png",
-        "image"
-      ]
-    },
-    {
-      "id": 173,
-      "type": "LoadImage",
-      "pos": [
-        -910,
-        7050
-      ],
-      "size": [
-        270,
-        320
-      ],
-      "flags": {},
-      "order": 14,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            325
-          ]
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.31.0",
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "axon-signal-reference.png",
-        "image"
-      ]
-    },
-    {
-      "id": 172,
-      "type": "LoadImage",
-      "pos": [
-        -1250,
-        7050
-      ],
-      "size": [
-        270,
-        320
-      ],
-      "flags": {},
-      "order": 15,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            324
-          ]
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.31.0",
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "axon-signal-reference.png",
-        "image"
       ]
     },
     {
@@ -1705,46 +1510,6 @@
       0,
       136,
       3,
-      "IMAGE"
-    ],
-    [
-      322,
-      170,
-      0,
-      136,
-      4,
-      "IMAGE"
-    ],
-    [
-      323,
-      171,
-      0,
-      136,
-      5,
-      "IMAGE"
-    ],
-    [
-      324,
-      172,
-      0,
-      136,
-      6,
-      "IMAGE"
-    ],
-    [
-      325,
-      173,
-      0,
-      136,
-      7,
-      "IMAGE"
-    ],
-    [
-      326,
-      174,
-      0,
-      136,
-      8,
       "IMAGE"
     ]
   ],

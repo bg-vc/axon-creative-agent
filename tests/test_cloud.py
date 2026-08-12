@@ -54,7 +54,7 @@ class CloudTests(unittest.TestCase):
             Mock(stdout="remote-sha\n", returncode=0),
             Mock(stdout=json.dumps({"ok": True}), stderr="", returncode=0),
         ]
-        report = cloud_doctor(root, profile, "accelerated")
+        report = cloud_doctor(root, profile, "accelerated", "minimax-h3-t2v")
         self.assertFalse(report["ok"])
         self.assertFalse(report["version"]["ok"])
 
@@ -100,7 +100,16 @@ class CloudTests(unittest.TestCase):
             self.assertEqual(record["status"], "completed")
             self.assertEqual(transport.upload.call_count, 2)
             cleanup = [call.args[0] for call in transport.ssh.call_args_list if call.args[0][:2] == ["rm", "-rf"]]
-            self.assertEqual(cleanup, [["rm", "-rf", "/remote/repo/runs/uploads/20260812T120000Z-abcdef12"]])
+            self.assertEqual(
+                cleanup,
+                [
+                    ["rm", "-rf", "/remote/repo/runs/uploads/20260812T120000Z-abcdef12"],
+                    ["rm", "-rf", "/remote/input/axon-creative/20260812T120000Z-abcdef12"],
+                ],
+            )
+            for call in transport.ssh.call_args_list:
+                if call.args[0][:2] == ["rm", "-rf"]:
+                    self.assertFalse(call.kwargs["check"])
 
     @patch("axon_creative.cloud.create_run_id", return_value="20260812T120000Z-deadbeef")
     @patch("axon_creative.cloud.SSHTransport")

@@ -85,7 +85,8 @@ def _safe_copy(source: Path, input_root: Path, run_id: str) -> str:
     target_dir = (root / "axon-creative" / run_id).resolve()
     if root not in target_dir.parents:
         raise ConfigurationError("Computed ComfyUI input path escaped its root")
-    target_dir.mkdir(parents=True, exist_ok=False)
+    # Image uploads may already have created this run directory through ComfyUI.
+    target_dir.mkdir(parents=True, exist_ok=True)
     target = target_dir / source.name
     if target.exists():
         raise ConfigurationError(f"Refusing to overwrite ComfyUI input: {target}")

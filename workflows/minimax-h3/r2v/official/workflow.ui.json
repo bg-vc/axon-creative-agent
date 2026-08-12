@@ -753,7 +753,7 @@
           "name": "ref_images.ref_image_1",
           "shape": 7,
           "type": "IMAGE",
-          "link": 282
+          "link": null
         },
         {
           "label": "ref_image_2",
@@ -913,43 +913,6 @@
       ],
       "color": "#322",
       "bgcolor": "#533"
-    },
-    {
-      "id": 139,
-      "type": "LoadImage",
-      "pos": [
-        -580,
-        5630
-      ],
-      "size": [
-        290,
-        330
-      ],
-      "flags": {},
-      "order": 12,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            282
-          ]
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "axon-signal-reference.png",
-        "image"
-      ]
     },
     {
       "id": 140,
@@ -1168,14 +1131,6 @@
       121,
       0,
       "LATENT"
-    ],
-    [
-      282,
-      139,
-      0,
-      136,
-      4,
-      "IMAGE"
     ]
   ],
   "groups": [

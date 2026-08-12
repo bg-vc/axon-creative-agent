@@ -12,6 +12,19 @@ def required_for(item: dict[str, Any], variant: str) -> bool:
 def inspect_workflow(manifest: WorkflowManifest, variant: str) -> dict[str, Any]:
     requirements = manifest.data.get("requirements", {})
     assets = manifest.data.get("assets", {})
+    next_steps = ["Drag uiWorkflow into ComfyUI."]
+    if any(spec.get("kind") == "image" for spec in assets.values()):
+        next_steps.append(
+            "Copy docs/assets/axon-signal-reference.png to ComfyUI/input, "
+            "or choose your own image in the LoadImage node."
+        )
+    next_steps.extend(
+        [
+            "Install missing nodes shown by ComfyUI Manager; update ComfyUI when a core node is missing.",
+            "Install every listed model in ComfyUI/models/<folder>, then restart ComfyUI.",
+            "Run a 5-10 second test in the UI before API automation.",
+        ]
+    )
     return {
         "workflowId": manifest.id,
         "title": manifest.title,
@@ -44,10 +57,5 @@ def inspect_workflow(manifest: WorkflowManifest, variant: str) -> dict[str, Any]
             for node in requirements.get("nodes", [])
             if required_for(node, variant)
         ],
-        "nextSteps": [
-            "Drag uiWorkflow into ComfyUI.",
-            "Install missing nodes shown by ComfyUI Manager; update ComfyUI when a core node is missing.",
-            "Install every listed model in ComfyUI/models/<folder>, then restart ComfyUI.",
-            "Run a 5-10 second test in the UI before API automation.",
-        ],
+        "nextSteps": next_steps,
     }

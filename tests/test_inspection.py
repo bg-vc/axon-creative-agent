@@ -22,6 +22,11 @@ class InspectionTests(unittest.TestCase):
                 )
                 self.assertEqual("SolAttnPatch" in node_types, variant == "accelerated")
 
+    def test_image_workflow_explains_first_ui_asset(self):
+        manifest = discover_manifests(ROOT)["minimax-h3-i2v"]
+        report = inspect_workflow(manifest, "accelerated")
+        self.assertTrue(any("ComfyUI/input" in step for step in report["nextSteps"]))
+
 
 if __name__ == "__main__":
     unittest.main()
