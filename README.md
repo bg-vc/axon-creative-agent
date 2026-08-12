@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
-![Axon Creative Agent — local Codex directs cloud ComfyUI video workflows](docs/assets/axon-creative-agent-hero.webp)
+![Axon Creative Agent — Codex orchestrates skills, tools, and compute](docs/assets/axon-creative-agent-hero.webp)
 
 > **DIRECT — Codex directs. ComfyUI executes. Cloud GPUs render.**
 
