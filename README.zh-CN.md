@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
-![Axon Creative Agent——Codex 编排 Skills、工具与算力](docs/assets/axon-creative-agent-hero.webp)
+![Axon Creative Agent——Codex 编排 Skills、工具与算力](docs/assets/axon-creative-agent-hero.zh-CN.webp)
 
 > **DIRECT —— Codex 负责导演，ComfyUI 负责执行，云端 GPU 负责生成。**
 
