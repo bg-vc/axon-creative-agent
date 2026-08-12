@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
-![Axon Signal——原创且版权安全的参考帧](docs/assets/axon-signal-reference.png)
+![Axon Creative Agent——本地 Codex 驱动云端 ComfyUI 视频工作流](docs/assets/axon-creative-agent-hero.webp)
 
 > **DIRECT —— Codex 负责导演，ComfyUI 负责执行，云端 GPU 负责生成。**
 
