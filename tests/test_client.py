@@ -44,7 +44,6 @@ class ClientTests(unittest.TestCase):
     def test_unsafe_upload_filename_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'bad"name.png'
-            path.write_bytes(b"png")
             with self.assertRaises(ComfyUIError):
                 self.client.upload_image(path, "inputs")
 

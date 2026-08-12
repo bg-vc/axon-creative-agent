@@ -6,6 +6,23 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Callable
 
+from .errors import ConfigurationError
+
+
+def _validate_suite(suite: dict[str, Any]) -> None:
+    placeholders = [
+        key
+        for key, value in suite.get("environment", {}).items()
+        if isinstance(value, str) and "FILL_AFTER_MEASUREMENT" in value
+    ]
+    if placeholders:
+        raise ConfigurationError(
+            "Fill benchmark environment values before running: "
+            + ", ".join(placeholders)
+        )
+    if int(suite.get("measuredRuns", 0)) < 1:
+        raise ConfigurationError("measuredRuns must be at least 1")
+
 
 def run_suite(
     suite_path: Path,
@@ -13,6 +30,7 @@ def run_suite(
     output_dir: Path,
 ) -> dict[str, Any]:
     suite = json.loads(suite_path.read_text(encoding="utf-8"))
+    _validate_suite(suite)
     results: list[dict[str, Any]] = []
     for case in suite["cases"]:
         for variant in case["variants"]:

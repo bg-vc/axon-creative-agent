@@ -41,6 +41,26 @@ def validate_repository(root: Path) -> list[str]:
                         errors.append(
                             f"{manifest.id}/{variant}: mapping {mapping['nodeId']}.{mapping['input']} missing"
                         )
+                for node_id, node in workflow.items():
+                    for input_name, value in node["inputs"].items():
+                        if (
+                            isinstance(value, list)
+                            and len(value) == 2
+                            and isinstance(value[0], str)
+                            and isinstance(value[1], int)
+                            and value[0] not in workflow
+                        ):
+                            errors.append(
+                                f"{manifest.id}/{variant}: {node_id}.{input_name} "
+                                f"references missing node {value[0]}"
+                            )
+                classes = {node["class_type"] for node in workflow.values()}
+                has_turbo = "MiniMaxH3TurboLoRA" in classes
+                has_sol = "SolAttnPatch" in classes
+                if has_turbo != (variant in {"turbo", "accelerated"}):
+                    errors.append(f"{manifest.id}/{variant}: Turbo node does not match variant")
+                if has_sol != (variant == "accelerated"):
+                    errors.append(f"{manifest.id}/{variant}: Sol-Attn node does not match variant")
             except Exception as exc:
                 errors.append(str(exc))
     english = _headings(root / "README.md")

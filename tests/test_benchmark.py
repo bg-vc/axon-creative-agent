@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from axon_creative.benchmark import run_suite
+from axon_creative.errors import ConfigurationError
 
 
 class BenchmarkTests(unittest.TestCase):
@@ -30,6 +31,23 @@ class BenchmarkTests(unittest.TestCase):
             self.assertEqual(report["results"][0]["medianSeconds"], 3.0)
             self.assertTrue((root / "out/results.json").is_file())
             self.assertTrue((root / "out/results.md").is_file())
+
+    def test_refuses_placeholder_environment(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            suite = root / "suite.json"
+            suite.write_text(
+                json.dumps(
+                    {
+                        "environment": {"driver": "FILL_AFTER_MEASUREMENT"},
+                        "measuredRuns": 3,
+                        "cases": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(ConfigurationError):
+                run_suite(suite, lambda case: case, root / "out")
 
 
 if __name__ == "__main__":

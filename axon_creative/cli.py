@@ -8,7 +8,7 @@ from pathlib import Path
 
 from .benchmark import run_suite
 from .client import ComfyUIClient
-from .doctor import run_doctor
+from .doctor import doctor_failure, run_doctor
 from .errors import AxonCreativeError, ConfigurationError
 from .manifest import discover_manifests
 from .runner import ensure_safe_server, execute, parse_inputs
@@ -40,6 +40,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("workflows", help="list installed workflow manifests")
     doctor = sub.add_parser("doctor", help="check ComfyUI, nodes, and models")
+    doctor.add_argument("--variant", choices=("official", "turbo", "accelerated"), default="accelerated")
     add_server_arguments(doctor)
     run = sub.add_parser("run", help="submit one workflow to local ComfyUI")
     run.add_argument("workflow_id")
@@ -52,7 +53,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--poll-interval", type=float, default=2.0)
     add_server_arguments(run)
     benchmark = sub.add_parser("benchmark", help="run a warmup plus measured RTX 5090 suite")
-    benchmark.add_argument("--suite", type=Path, default=repository_root() / "benchmarks" / "rtx5090.json")
+    benchmark.add_argument("--suite", type=Path, default=Path("benchmarks/rtx5090.json"))
     benchmark.add_argument("--comfy-input-dir", type=Path, default=os.environ.get("COMFYUI_INPUT_DIR"))
     benchmark.add_argument("--timeout", type=float, default=3600.0)
     add_server_arguments(benchmark)
@@ -69,8 +70,8 @@ def _prompt(manifest, prompt_file: Path | None) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    root = repository_root()
     try:
+        root = repository_root()
         manifests = discover_manifests(root)
         if args.command == "workflows":
             for manifest in manifests.values():
@@ -87,13 +88,16 @@ def main(argv: list[str] | None = None) -> int:
         ensure_safe_server(args.server, args.allow_remote)
         client = ComfyUIClient(args.server)
         if args.command == "doctor":
-            report = run_doctor(client, manifests)
+            report = run_doctor(client, manifests, args.variant)
             print(json.dumps(report, indent=2, ensure_ascii=False))
             return 0 if report["ok"] else 1
         if args.command == "run":
             if args.workflow_id not in manifests:
                 raise ConfigurationError(f"Unknown workflow: {args.workflow_id}")
             manifest = manifests[args.workflow_id]
+            report = run_doctor(client, {manifest.id: manifest}, args.variant)
+            if not report["ok"]:
+                raise ConfigurationError(doctor_failure(report))
             record = execute(
                 root=root, manifest=manifest, variant=args.variant,
                 prompt=_prompt(manifest, args.prompt_file), seed=args.seed,
@@ -104,20 +108,21 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(record, indent=2, ensure_ascii=False))
             return 0
         if args.command == "benchmark":
-            suite = json.loads(args.suite.read_text(encoding="utf-8"))
+            suite_path = args.suite if args.suite.is_absolute() else root / args.suite
+
             def execute_case(case):
                 manifest = manifests[case["workflowId"]]
                 case_inputs = parse_inputs(
-                    [f"{name}={(args.suite.parent / path).resolve()}" for name, path in case.get("inputs", {}).items()]
+                    [f"{name}={(suite_path.parent / path).resolve()}" for name, path in case.get("inputs", {}).items()]
                 )
                 return execute(
                     root=root, manifest=manifest, variant=case["variant"],
-                    prompt=(args.suite.parent / case["promptFile"]).read_text(encoding="utf-8"),
+                    prompt=(suite_path.parent / case["promptFile"]).read_text(encoding="utf-8"),
                     seed=case["seed"], inputs=case_inputs, client=client,
                     comfy_input_dir=args.comfy_input_dir, poll_interval=2.0, timeout=args.timeout,
                 )
-            output = root / "runs" / "benchmarks" / args.suite.stem
-            report = run_suite(args.suite, execute_case, output)
+            output = root / "runs" / "benchmarks" / suite_path.stem
+            report = run_suite(suite_path, execute_case, output)
             print(json.dumps(report, indent=2, ensure_ascii=False))
             return 0
     except (AxonCreativeError, OSError, json.JSONDecodeError) as exc:

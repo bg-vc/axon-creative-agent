@@ -6,83 +6,71 @@
 
 > **DIRECT — Codex directs. ComfyUI executes. Your GPU renders.**
 
-Axon Creative Agent is a small, local-first open-source workspace that turns a
-creative brief into a reproducible ComfyUI run. Codex inspects references,
-chooses a versioned workflow, explains the run, submits it to local ComfyUI, and
-checks the generated media. The first release focuses on MiniMax H3 video with
-native synchronized stereo audio on an NVIDIA RTX 5090.
+Give Codex a creative brief. It selects a reviewed workflow, explains the run,
+checks the local environment, and asks ComfyUI to render it on your GPU. The
+first release focuses on MiniMax H3 video with synchronized stereo audio.
 
-No benchmark number is published until the fixed suite has run. No model weight,
-private input, or generated video belongs in this repository.
+This is a local workflow workspace, not a ComfyUI installer, cloud service, or
+production UI. It does not download model weights, expose ComfyUI publicly, or
+publish performance claims without a repeatable benchmark.
 
-## What it is / What it is not
-
-It is:
-
-- a repository-scoped Codex Skill plus a small Python 3.11+ runner;
-- three reviewed H3 workflows: text, first-frame, and multimodal reference video;
-- three comparable variants: `official`, `turbo`, and experimental `accelerated`;
-- a manifest contract that future image, audio, video, or 3D Skills can adopt.
-
-It is not:
-
-- a ComfyUI/CUDA/model installer, hosted service, task queue, or production UI;
-- a replacement for Axon Imagine, which is a separate consumer product;
-- a claim that every GPU or operating system matches RTX 5090 results;
-- a FLUX.3 integration. It will be added only after an official release is
-  licensed, implemented, and tested.
-
-## How DIRECT works
+## The core flow
 
 ```text
-Creative brief
-     ↓
-Codex Skill — inspect references, choose and explain a workflow
-     ↓
-Manifest — map prompt, seed, assets, dependencies and output
-     ↓
-ComfyUI local API — validate, queue, execute and report history
-     ↓
-RTX 5090 — render locally
-     ↓
-Video + stereo audio + ignored run manifest
+1. Brief        Codex reads the prompt and references
+       ↓
+2. Direct       the Skill selects a Manifest and variant
+       ↓
+3. Render       ComfyUI executes; the local GPU generates
+       ↓
+4. Verify       the runner checks the media and records the run
 ```
 
-ComfyUI's local routes provide the integration surface: `/system_stats`,
-`/object_info`, `/models/*`, `/upload/image`, `/prompt`, `/history/{prompt_id}`,
-and `/view`. The runner refuses non-loopback servers unless
-`--allow-remote` is explicit.
+The Manifest is the small contract between Codex and ComfyUI. It maps prompt,
+seed, inputs, dependencies, workflow files, and outputs. New image, audio,
+video, or 3D workflows can adopt the same contract without changing the runner.
 
 ## Three MiniMax H3 workflows
 
-| Workflow | Use it for | Required input |
+| Workflow | Purpose | Input |
 | --- | --- | --- |
-| `minimax-h3-t2v` | Build a shot directly from a structured brief | prompt |
-| `minimax-h3-i2v` | Preserve a composition or subject from a first frame | image |
-| `minimax-h3-r2v` | Assign identity, motion/camera and voice to references | image; optional video/audio |
+| `minimax-h3-t2v` | Create a shot from a brief | prompt |
+| `minimax-h3-i2v` | Preserve a subject or composition | first-frame image |
+| `minimax-h3-r2v` | Reference identity, motion, camera, or voice | image; optional video/audio |
 
-Each workflow contains draggable `workflow.ui.json`, executable
-`workflow.api.json`, and a `manifest.json`. Variants are deliberately explicit:
+Each workflow provides an editable `workflow.ui.json`, an executable
+`workflow.api.json`, and a `manifest.json`.
 
-| Variant | Sampler | Steps | Sol-Attn | Role |
-| --- | --- | ---: | --- | --- |
-| `official` | `res_multistep` | 20 | no | quality and speed baseline |
-| `turbo` | H3 Turbo | 8 | no | accelerated sampling |
-| `accelerated` | H3 Turbo | 8 | yes | experimental RTX 5090 speed path |
+| Variant | Configuration | Use |
+| --- | --- | --- |
+| `official` | `res_multistep`, 20 steps | quality/speed baseline |
+| `turbo` | H3 Turbo, 8 steps | faster sampling |
+| `accelerated` | H3 Turbo + Sol-Attn, 8 steps | experimental RTX 5090 path |
 
-The public “Axon Signal” example is an original character and environment made
-for this repository. It replaces private development prompts that used existing
-characters.
+## Run in three steps
 
-## Quick start: Windows
+Prerequisites: Python 3.11+, ComfyUI 0.30.0+, FFmpeg, a compatible NVIDIA
+environment, and the models/nodes declared in each Manifest. ComfyUI should
+listen on `127.0.0.1:8188`.
 
-Prerequisites: NVIDIA RTX 5090, current driver/CUDA-compatible PyTorch, ComfyUI
-0.30.0+, Git, Python 3.11+, and FFmpeg for post-run inspection.
+**1. Prepare ComfyUI.** Install it from the upstream project, place the H3
+weights in its model folders, and install Turbo/Sol-Attn only when using those
+variants. This repository links to dependencies; it does not install them.
 
-1. Install ComfyUI and the two optional acceleration nodes using their own
-   instructions. Put model files in the folders printed by `doctor`; the runner
-   never downloads weights.
-2. In PowerShell:
+**2. Install and check.**
+
+Linux:
+
+```bash
+git clone https://github.com/bg-vc/axon-creative-agent.git
+cd axon-creative-agent
+python3.11 -m venv .venv && source .venv/bin/activate
+python -m pip install -e .
+export COMFYUI_INPUT_DIR=/opt/ComfyUI/input
+axon-creative doctor --variant accelerated
+```
+
+Windows PowerShell:
 
 ```powershell
 git clone https://github.com/bg-vc/axon-creative-agent.git
@@ -91,35 +79,12 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e .
 $env:COMFYUI_INPUT_DIR = "C:\ComfyUI_windows_portable\ComfyUI\input"
-axon-creative doctor
+axon-creative doctor --variant accelerated
 ```
 
-3. Start with a five-to-ten-second test before attempting the full benchmark.
-
-## Quick start: Linux
-
-Prerequisites are the same; this project maintains CLI compatibility on Linux,
-but any performance table stays tied to the operating system that produced it.
+**3. Generate one short test.**
 
 ```bash
-git clone https://github.com/bg-vc/axon-creative-agent.git
-cd axon-creative-agent
-python3.11 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e .
-export COMFYUI_INPUT_DIR=/opt/ComfyUI/input
-axon-creative doctor
-```
-
-ComfyUI should remain on `127.0.0.1:8188`. Use an SSH tunnel instead of exposing
-it publicly.
-
-## Complete commands
-
-```bash
-axon-creative workflows
-axon-creative doctor
-
 axon-creative run minimax-h3-t2v --variant accelerated \
   --prompt-file prompts/axon-signal-t2v.txt --seed 20260812
 
@@ -132,76 +97,45 @@ axon-creative run minimax-h3-r2v --variant accelerated \
   --input audio=/private/path/voice.wav
 ```
 
-Every run writes `runs/<run-id>/manifest.json` with workflow hash, seed, timing,
-output hashes, media metadata, and failure details. `runs/` is ignored by Git.
-The CLI is repository-scoped: run it inside the clone or set
-`AXON_CREATIVE_ROOT` to the clone path.
+Start with 5–10 seconds. Every run writes an ignored
+`runs/<run-id>/manifest.json` containing the workflow hash, seed, timing,
+outputs, media inspection, and any error. For manual ComfyUI use, copy the
+reference asset into its input folder before loading a UI workflow.
 
-## RTX 5090 benchmark
+## Benchmark honestly
 
-**Status: protocol ready; results not yet measured in this repository.**
+**Status: protocol ready; no public RTX 5090 result yet.**
 
-The suite fixes prompt, references, seed, dimensions, frame count and output.
-It performs one warmup and three measured runs per workflow and variant, then
-writes JSON and Markdown under ignored `runs/benchmarks/`. Fill the exact OS,
-driver, CUDA, PyTorch and node commits before running:
+Edit every `FILL_AFTER_MEASUREMENT` value in `benchmarks/rtx5090.json`, then run:
 
 ```bash
 axon-creative benchmark --suite benchmarks/rtx5090.json
 ```
 
-Publish median/min/max, cold Triton compile time, warm end-to-end time, peak
-VRAM and matching-frame quality review together. Until that evidence exists,
-“about twenty minutes to a few minutes” remains a private observation, not a
-project claim.
+The suite performs one warmup and three measured runs for every workflow and
+variant. Publish median/min/max, exact system versions, peak VRAM, and matching
+quality frames together. The CLI refuses to run a benchmark that still contains
+placeholder environment data.
 
-## Add a Creative Skill
+## Add another workflow or Skill
 
-Do not modify the runner for each model. Add a directory containing:
+Add one directory with `manifest.json` and UI/API workflow files, declare every
+input and dependency, then add a public sample and tests. Do not add model logic
+to the runner. The repository Skill at
+`.agents/skills/run-creative-workflows/SKILL.md` follows the same four-stage
+flow: inspect, direct, render, verify.
 
-```text
-workflows/<family>/<mode>/
-├── manifest.json
-├── official/workflow.ui.json
-├── official/workflow.api.json
-├── turbo/workflow.ui.json
-└── turbo/workflow.api.json
-```
+## Boundaries, licenses, and safety
 
-Use schema version `1`, declare prompt/seed/asset mappings, dependencies and
-outputs, add copyright-safe inputs, then update validation tests. A separate
-repository Skill may call the same CLI contract. The included Codex Skill lives
-at `.agents/skills/run-creative-workflows/` and follows the repository-level
-Skills convention.
+- Repository code and original workflow adaptations: Apache-2.0.
+- ComfyUI templates: MIT. Model weights and LoRAs keep their own terms.
+- Sol-Attn is experimental and has no declared repository license; this project
+  links to it and redistributes none of its code.
+- Non-loopback ComfyUI servers require explicit `--allow-remote`; prefer an SSH
+  tunnel. Never commit weights, private references, generated media, or secrets.
+- FLUX.3 is not advertised as supported until an official release, workflow,
+  license review, and real test all exist.
 
-## Dependencies, licenses and safety
-
-- Repository code, manifests and original workflow adaptations: Apache-2.0.
-- ComfyUI official templates: MIT; source attribution is retained.
-- MiniMax H3 weights and Turbo LoRA have their own terms. “Open weights” does
-  not mean unrestricted commercial use.
-- H3 Turbo custom nodes: Apache-2.0.
-- Sol-Attn integration is experimental and currently has no declared repository
-  license, so this project links to it but redistributes none of its code.
-- Never commit personal references, weights, secrets, outputs, or absolute local
-  paths. Review generated media before publication.
-
-See [THIRD_PARTY.md](THIRD_PARTY.md) and [SECURITY.md](SECURITY.md).
-
-## Non-goals and roadmap
-
-The project intentionally avoids installers, model managers, web UI, cloud
-accounts, billing, Kubernetes and remote GPU scheduling. The next additions must
-earn their place through a working manifest, a tested workflow and clear
-licensing. Image generation—possibly a future official FLUX release—comes after
-that evidence, followed by audio or 3D only if contributors bring reproducible
-workflows.
-
-## Launch note
-
-> Codex writes code. Here it directs a 5090.
-
-The launch video will be an original 25–40 second comparison produced from the
-three Axon Signal workflows and uploaded as a GitHub Release asset. The private
-`0812.mov` development recording is intentionally excluded. Draft English and
-Chinese posts are in [docs/launch-posts.md](docs/launch-posts.md).
+See [THIRD_PARTY.md](THIRD_PARTY.md), [SECURITY.md](SECURITY.md), and the
+[launch post drafts](docs/launch-posts.md). The private `0812.mov` development
+recording is intentionally excluded from this repository.
